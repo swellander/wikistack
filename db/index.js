@@ -1,6 +1,11 @@
 const Sequelize = require('sequelize');
 const db = new Sequelize(process.env.DATABASE_URL);
 
+function slugify(title) {
+  return title.replace(/\s+/g, '_').replace(/\W/g, '');
+}
+
+
 const Page = db.define('page', {
   title: {
     type: Sequelize.STRING
@@ -16,6 +21,10 @@ const Page = db.define('page', {
   }
 })
 
+Page.beforeValidate(pageInstance => {
+  pageInstance.slug = slugify(pageInstance.title);
+})
+
 const User = db.define('user', {
   name: {
     type: Sequelize.STRING
@@ -24,6 +33,8 @@ const User = db.define('user', {
     type: Sequelize.STRING
   }
 });
+
+Page.belongsTo(User, { as: 'author' });
 
 module.exports = {
   db,

@@ -10,8 +10,11 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
 app.use('/wiki', routes.wiki);
+app.use('/users', routes.users);
+
 
 app.get('/', (req, res) => {
   res.redirect('/wiki');
@@ -30,8 +33,9 @@ const seedUser = {
 //init server and db
 const init = async () => {
   await db.sync({ force: true });
-  await Page.create(seedPage);
-  await User.create(seedUser);
+  const page = await Page.create(seedPage);
+  const user = await User.create(seedUser);
+  page.setAuthor(user);
   app.listen(port, () => console.log(`Listening on port ${port}`));
 }
 
